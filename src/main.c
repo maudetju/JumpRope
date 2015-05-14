@@ -1,8 +1,7 @@
 #include <pebble.h>
 #include "utils.h"
   
-#define UPTIME_BUF_SIZE 32
-#define JUMPS_BUF_SIZE 6
+#define BUFFER_SIZE 32
   
 static Window *s_window;
 static TextLayer *s_time_layer;
@@ -13,12 +12,13 @@ static TextLayer *s_jumps_counter_layer;
 static bool s_launch = false;
 
 static int s_uptime = 0;
-static char s_uptime_buffer[UPTIME_BUF_SIZE];
+static char s_uptime_buffer[BUFFER_SIZE];
 
 static int s_jumps = 0;
-static char s_jumps_buffer[JUMPS_BUF_SIZE];
+static char s_jumps_buffer[BUFFER_SIZE];
 
 static void tap_handler(AccelAxisType axis, int32_t direction) {
+  // Increment jumps
   s_jumps++;
   snprintf(s_jumps_buffer, sizeof(s_jumps_buffer), "%d", s_jumps);
   text_layer_set_text(s_jumps_counter_layer, s_jumps_buffer);
@@ -34,8 +34,7 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   int hours = s_uptime / 3600;
   
   // Format uptime to 00:00:00
-  //char format[10];
-  char *format = malloc(10);
+  char *format = malloc(BUFFER_SIZE);
   format_uptime(&format, hours, minutes, seconds);
   
   // Update the TextLayer

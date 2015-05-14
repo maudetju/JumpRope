@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "utils.h"
 
+// Format uptime to 00:00:00
 void format_uptime(char **format, int hours, int minutes, int seconds) {
   strcpy(*format,  "");
   
