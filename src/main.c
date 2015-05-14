@@ -8,13 +8,16 @@ static TextLayer *s_jumps_counter_layer;
 
 static bool s_launch = false;
 
-static int s_jumps = 0;
-static char s_jumps_buffer[6];
-
 static int s_uptime = 0;
 static char s_uptime_buffer[32];
 
+static int s_jumps = 0;
+static char s_jumps_buffer[6];
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+  // Increment s_uptime
+  s_uptime++;
+  
   // Get time since launch
   int seconds = s_uptime % 60;
   int minutes = (s_uptime % 3600) / 60;
@@ -43,9 +46,6 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // Update the TextLayer
   snprintf(s_uptime_buffer, sizeof(s_uptime_buffer), format, hours, minutes, seconds);
   text_layer_set_text(s_time_counter_layer, s_uptime_buffer);
-
-  // Increment s_uptime
-  s_uptime++;
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
@@ -64,7 +64,11 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-
+  // Reset all counters
+  s_uptime = 0;
+  text_layer_set_text(s_time_counter_layer, "00:00:00");
+  s_jumps = 0;
+  text_layer_set_text(s_jumps_counter_layer, "0");
 }
 
 static void click_config_provider(void *context) {
@@ -97,8 +101,9 @@ static void window_load(Window *window) {
   
   //text_layer_jumps_counter
   s_jumps_counter_layer = text_layer_create((GRect) { .origin = { 0, 75 }, .size = { bounds.size.w, 30 } });
-  snprintf(s_jumps_buffer, sizeof(s_jumps_buffer), "%d", s_jumps);
-  text_layer_set_text(s_jumps_counter_layer, s_jumps_buffer);
+  /*snprintf(s_jumps_buffer, sizeof(s_jumps_buffer), "%d", s_jumps);
+  text_layer_set_text(s_jumps_counter_layer, s_jumps_buffer);*/
+  text_layer_set_text(s_jumps_counter_layer, "0");
   text_layer_set_text_alignment(s_jumps_counter_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_jumps_counter_layer));
   
