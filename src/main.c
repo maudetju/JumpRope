@@ -14,6 +14,12 @@ static char s_uptime_buffer[32];
 static int s_jumps = 0;
 static char s_jumps_buffer[6];
 
+static void tap_handler(AccelAxisType axis, int32_t direction) {
+  s_jumps++;
+  snprintf(s_jumps_buffer, sizeof(s_jumps_buffer), "%d", s_jumps);
+  text_layer_set_text(s_jumps_counter_layer, s_jumps_buffer);
+}
+
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   // Increment s_uptime
   s_uptime++;
@@ -56,9 +62,13 @@ static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
   if (s_launch) {
     // Unregister with TickTimerService
     tick_timer_service_unsubscribe();
+    // Unregister with AccelTapService
+    accel_tap_service_unsubscribe();
   } else {
     // Register with TickTimerService
     tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+    // Register with AccelTapService
+    accel_tap_service_subscribe(tap_handler);
   }
   s_launch = !s_launch;
 }
@@ -101,8 +111,6 @@ static void window_load(Window *window) {
   
   //text_layer_jumps_counter
   s_jumps_counter_layer = text_layer_create((GRect) { .origin = { 0, 75 }, .size = { bounds.size.w, 30 } });
-  /*snprintf(s_jumps_buffer, sizeof(s_jumps_buffer), "%d", s_jumps);
-  text_layer_set_text(s_jumps_counter_layer, s_jumps_buffer);*/
   text_layer_set_text(s_jumps_counter_layer, "0");
   text_layer_set_text_alignment(s_jumps_counter_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_jumps_counter_layer));
